@@ -7,6 +7,8 @@ import {
   deleteInvoice,
 } from "../service/invoice.service";
 import { findUser } from "../service/user.service";
+import { InvoiceDocument } from "../model/invoice.model";
+import { UserDocument } from "../model/user.model";
 
 export async function createInvoiceHandler(req: Request, res: Response) {
   const userId = get(req, "user._id");
@@ -42,21 +44,21 @@ export async function updateInvoiceHandler(req: Request, res: Response) {
   return res.send(updatedInvoice);
 }
 export async function getInvoiceHandler(req: Request, res: Response) {
-  const postId = get(req, "params.postId");
-  const post = await findInvoice({ postId });
+  const invoiceId = get(req, "params.invoiceId");
+  const invoice = await findInvoice({ invoiceId });
 
-  if (!post) {
+  if (!invoice) {
     return res.sendStatus(404);
   }
 
-  return res.send(post);
+  return res.send(invoice);
 }
 
 export async function deleteInvoiceHandler(req: Request, res: Response) {
   const userId = get(req, "user._id");
-  const postId = get(req, "params.postId");
+  const invoiceId = get(req, "params.invoiceId");
 
-  const post = await findInvoice({ postId });
+  const post = await findInvoice({ invoiceId });
 
   if (!post) {
     return res.sendStatus(404);
@@ -66,7 +68,7 @@ export async function deleteInvoiceHandler(req: Request, res: Response) {
     return res.sendStatus(401);
   }
 
-  await deleteInvoice({ postId });
+  await deleteInvoice({ invoiceId });
 
   return res.sendStatus(200);
 }
@@ -76,7 +78,7 @@ export async function payInvoiceHandler(req: Request, res: Response) {
   const userId = get(req, "user._id");
   const invoiceId = get(req, "params.invoiceId");
 
-  const invoice = await findInvoice({ invoiceId });
+  const invoice = await findInvoice({ invoiceId }) ;
 
   if (!invoice) {
     return res.sendStatus(404);
@@ -85,10 +87,11 @@ export async function payInvoiceHandler(req: Request, res: Response) {
   if (String(invoice.user) !== String(userId)) {
     return res.sendStatus(401);
   }
-  const user  = await findUser({ _id: invoice.user });
+  const user   = await findUser({ _id: invoice.user }) as UserDocument;
+  if(user){
   user.balance = user.balance - invoice.invoice_amount;
   await user.save();
-
+}
   await findAndUpdate({ invoiceId }, { invoice_status: "payed" }, { new: true });
 
   return res.sendStatus(200);

@@ -22,6 +22,8 @@ import {
   deleteInvoiceSchema,
 } from "./schema/invoice.schema";
 
+import { createCarHandler } from "./controller/car.controller";
+
 export default function (app: Express) {
   app.get("/healthcheck", (req: Request, res: Response) => res.sendStatus(200));
 
@@ -47,27 +49,35 @@ export default function (app: Express) {
   // Logout
   app.delete("/api/sessions", requiresUser, invalidateUserSessionHandler);
 
-  // Create a post
+  // Create a invoice
   app.post(
     "/api/invoices",
     [requiresUser, validateRequest(createInvoiceSchema)],
     createInvoiceHandler
   );
 
-  // Update a post
+  // Update a invoice
   app.put(
     "/api/invoices/:invoiceId",
     [requiresUser, validateRequest(updateInvoiceSchema)],
     updateInvoiceHandler
   );
 
-  // Get a post
+  // Get a invoice
   app.get("/api/invoices/:invoicetId", getInvoiceHandler);
 
-  // Delete a post
+  // Delete a invoice
   app.delete(
     "/api/invoices/:invoiceId",
     [requiresUser, validateRequest(deleteInvoiceSchema)],
     deleteInvoiceHandler
   );
+
+  //craete data cars
+  app.post("/api/cars", createCarHandler);
+
+  //pay vignette 
+  
+
+
 }
