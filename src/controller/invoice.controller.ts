@@ -85,7 +85,7 @@ export async function payInvoiceHandler(req: Request, res: Response) {
   if (String(invoice.user) !== String(userId)) {
     return res.sendStatus(401);
   }
-  const user | null |undefined =  = await findUser({ _id: invoice.user });
+  const user  = await findUser({ _id: invoice.user });
   user.balance = user.balance - invoice.invoice_amount;
   await user.save();
 
